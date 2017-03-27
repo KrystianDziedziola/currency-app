@@ -1,12 +1,12 @@
 <component name="libraryTable">
   <library name="support-core-utils-25.3.0">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/f92b63a3aab535d24e05f9f72ce65e721c54f9b8/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/f92b63a3aab535d24e05f9f72ce65e721c54f9b8/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/e7a2389691584e320298ee570c4708ad70d7f6e0/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/e7a2389691584e320298ee570c4708ad70d7f6e0/output/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/AppData/Local/Android/sdk/extras/android/m2repository/com/android/support/support-core-utils/25.3.0/support-core-utils-25.3.0-sources.jar!/" />
+      <root url="jar://$USER_HOME$/AppData/Local/Android/Sdk/extras/android/m2repository/com/android/support/support-core-utils/25.3.0/support-core-utils-25.3.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
