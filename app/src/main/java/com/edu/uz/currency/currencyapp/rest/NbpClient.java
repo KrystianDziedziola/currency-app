@@ -1,7 +1,7 @@
-package com.edu.uz.currency.currencyapp.retrofit;
+package com.edu.uz.currency.currencyapp.rest;
 
-import com.edu.uz.currency.currencyapp.retrofit.pojo.SingleCurrency;
-import com.edu.uz.currency.currencyapp.retrofit.pojo.TableCurrency;
+import com.edu.uz.currency.currencyapp.rest.model.SingleCurrency;
+import com.edu.uz.currency.currencyapp.rest.model.TableCurrency;
 
 import java.util.List;
 
@@ -19,10 +19,14 @@ public interface NbpClient {
     Call<List<TableCurrency>> getAllCurrencyFromTable(@Path("table") final String table);
 
     @GET("rates/{table}/{code}/")
-    Call<SingleCurrency> getSingleCurrency(@Path("table") final String table, @Path("code") final String currency);
+    Call<SingleCurrency> getSingleCurrency(@Path("table") final String table,
+                                           @Path("code") final String currency);
 
     @GET("rates/{table}/{code}/{startDate}/{endDate}/")
-    Call<SingleCurrency> getSingleCurrencyHistory(@Path("table") final String table, @Path("code") final String currency, @Path("startDate") final String startDate, @Path("endDate") final String endDate);
+    Call<SingleCurrency> getSingleCurrencyHistory(@Path("table") final String table,
+                                                  @Path("code") final String currency,
+                                                  @Path("startDate") final String startDate,
+                                                  @Path("endDate") final String endDate);
 
     class FactoryNbpClient {
 

@@ -1,5 +1,5 @@
 
-package com.edu.uz.currency.currencyapp.retrofit.pojo;
+package com.edu.uz.currency.currencyapp.rest.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
