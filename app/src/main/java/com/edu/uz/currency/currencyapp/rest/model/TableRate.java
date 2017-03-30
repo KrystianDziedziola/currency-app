@@ -16,6 +16,12 @@ public class TableRate {
     @Expose
     private double mid;
 
+    public TableRate(final String currency, final String code, final double mid) {
+        this.currency = currency;
+        this.code = code;
+        this.mid = mid;
+    }
+
     public String getCurrency() {
         return currency;
     }

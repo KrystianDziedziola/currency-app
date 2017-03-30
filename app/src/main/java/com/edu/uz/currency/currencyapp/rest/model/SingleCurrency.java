@@ -20,6 +20,16 @@ public class SingleCurrency {
     @Expose
     private List<SingleRate> rates = null;
 
+    public SingleCurrency(final String table,
+                          final String currency,
+                          final String code,
+                          final List<SingleRate> rates) {
+        this.table = table;
+        this.currency = currency;
+        this.code = code;
+        this.rates = rates;
+    }
+
     public String getTable() {
         return table;
     }
