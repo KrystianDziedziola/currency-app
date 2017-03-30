@@ -1,19 +1,16 @@
 package com.edu.uz.currency.currencyapp.rest;
 
 import com.edu.uz.currency.currencyapp.model.Currency;
-import com.edu.uz.currency.currencyapp.rest.model.SingleCurrency;
 
-import org.assertj.core.internal.cglib.core.Local;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static android.media.CamcorderProfile.get;
 import static org.assertj.core.api.Java6Assertions.*;
 
-public class NbpClientTest {
+public class CurrencyServiceTest {
 
     private CurrencyService currencyService;
 

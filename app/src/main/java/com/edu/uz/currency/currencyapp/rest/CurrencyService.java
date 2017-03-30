@@ -1,8 +1,6 @@
 package com.edu.uz.currency.currencyapp.rest;
 
-import android.util.Log;
-
-import com.edu.uz.currency.currencyapp.helper.RequestExceptions;
+import com.edu.uz.currency.currencyapp.helper.RequestException;
 import com.edu.uz.currency.currencyapp.helper.CurrencyMapper;
 import com.edu.uz.currency.currencyapp.model.Currency;
 import com.edu.uz.currency.currencyapp.rest.model.SingleCurrency;
@@ -30,7 +28,7 @@ public class CurrencyService {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapAllCurrencies(response);
         } else {
-            throw new RequestExceptions();
+            throw new RequestException();
         }
     }
 
@@ -42,7 +40,7 @@ public class CurrencyService {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapSingleCurrency(response);
         } else {
-            throw new RequestExceptions();
+            throw new RequestException();
         }
     }
 
@@ -56,7 +54,7 @@ public class CurrencyService {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapSingleCurrencyHistory(response);
         } else {
-            throw new RequestExceptions();
+            throw new RequestException();
         }
     }
 }

@@ -21,6 +21,16 @@ public class TableCurrency {
     @Expose
     private List<TableRate> tableRates = null;
 
+    public TableCurrency(final String table,
+                         final String no,
+                         final String effectiveDate,
+                         final List<TableRate> tableRates) {
+        this.table = table;
+        this.no = no;
+        this.effectiveDate = effectiveDate;
+        this.tableRates = tableRates;
+    }
+
     public String getTable() {
         return table;
     }

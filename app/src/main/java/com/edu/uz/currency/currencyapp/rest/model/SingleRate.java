@@ -16,6 +16,12 @@ public class SingleRate {
     @Expose
     private double mid;
 
+    public SingleRate(final String no, final String effectiveDate, final double mid) {
+        this.no = no;
+        this.effectiveDate = effectiveDate;
+        this.mid = mid;
+    }
+
     public String getNo() {
         return no;
     }
