@@ -27,8 +27,8 @@ public class Currency {
         ValidationHelper.notNull("code", code);
         ValidationHelper.notNull("rate", rate);
         ValidationHelper.notNull("date", date);
-        ValidationHelper.validateCurrencyCode(code, CODE_LENGTH);
-        ValidationHelper.validateCurrencyRate(rate, MINIMUM_RATE);
+        ValidationHelper.validateCurrencyCode(code);
+        ValidationHelper.validateMinimumValue("rate", rate, MINIMUM_RATE);
 
         this.name = name;
         this.code = code;
