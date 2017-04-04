@@ -1,6 +1,21 @@
 <resources>
+
     <string name="app_name">CurrencyApp</string>
     <string name="exchange_rates">Kursy walut</string>
     <string name="ATM">Bankomaty</string>
     <string name="exchange_calculator">Kalkulator walut</string>
+    <string name="find">Szukaj</string>
+    <string name="AllATM">Wszystkie Bankomaty</string>
+
+    <string-array name="ATMs">
+        <item>@string/AllATM</item>
+        <item>PKO</item>
+        <item>mBank</item>
+        <item>Millennium</item>
+        <item>IdeaBank</item>
+        <item>Bgż</item>
+        <item>Wbk</item>
+        <item>ING</item>
+    </string-array>
+
 </resources>
