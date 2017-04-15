@@ -3,4 +3,6 @@
     <string name="exchange_rates">Kursy walut</string>
     <string name="ATM">Bankomaty</string>
     <string name="exchange_calculator">Kalkulator walut</string>
+    <string name="internet">Internet</string>
+    <string name="no_internet_message">Brak połączenia z internetem. Potrzebujesz mieć połączenie z internetem żeby sprawdzić aktualne kursy walut.</string>
 </resources>
