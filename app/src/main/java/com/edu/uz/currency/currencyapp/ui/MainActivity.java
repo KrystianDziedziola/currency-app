@@ -1,20 +1,12 @@
 package com.edu.uz.currency.currencyapp.ui;
 
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.edu.uz.currency.currencyapp.R;
 import com.edu.uz.currency.currencyapp.databinding.ActivityMainBinding;
-import com.edu.uz.currency.currencyapp.model.Currency;
-import com.edu.uz.currency.currencyapp.rest.CurrencyService;
-import com.edu.uz.currency.currencyapp.rest.NbpClient;
-
-import java.io.IOException;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
