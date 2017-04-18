@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -17,26 +18,40 @@ import android.widget.Toast;
 
 import com.edu.uz.currency.currencyapp.R;
 
+import com.edu.uz.currency.currencyapp.atm.rest.model.MainResponse;
+import com.edu.uz.currency.currencyapp.atm.rest.GoogleClient;
+import com.edu.uz.currency.currencyapp.atm.rest.model.Result;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AtmMapActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         GoogleApiClient.ConnectionCallbacks, LocationListener {
 
-    final String[] PERMISSIONS = {android.Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET};
-
-    private static final String LOCATION_PERMISSION_INFO = "Location Permissions denied.";
+    private static final String LOCATION_PERMISSION_INFO = "My location permission denied. " +
+            "Please turn ON permission and come back.";
     private static final int PERMS_REQUEST_CODE = 11;
+    private static final int PROXIMITY_RADIUS = 5000;
 
+    private double latitude;
+    private double longitude;
     private GoogleMap googleMap;
     private Spinner atmSpinner;
     private GoogleApiClient googleApiClient;
@@ -53,25 +68,184 @@ public class AtmMapActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_atm_maps);
         context = getApplicationContext();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!checkLocationPermission(PERMISSIONS)) {
-                requestPermissions(PERMISSIONS, PERMS_REQUEST_CODE);
-            }
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkLocationPermission();
         }
-        initialize();
-    }
-
-    private void initialize() {
+        if (!isGooglePlayServicesAvailable()) {
+            finish();
+        }
         initMap();
         initAtmSpinner();
     }
 
+    private boolean isGooglePlayServicesAvailable() {
+        final GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            if (googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(this, result,
+                        0).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
     private void searchNearby(final String atmName) {
-        //// TODO:
+        final GoogleClient googleClient = GoogleClient.FactoryGoogleClient.getGoogleClient();
+        final Call<MainResponse> call = googleClient.getNearbyPlaces(atmName,
+                latitude + "," + longitude, PROXIMITY_RADIUS);
+
+        call.enqueue(new Callback<MainResponse>() {
+            @Override
+            public void onResponse(final Call<MainResponse> call,
+                                   final Response<MainResponse> response) {
+                try {
+                    googleMap.clear();
+
+                    Log.d("URL", String.format("%s", response.raw().request().url()));
+
+                    for (Result result : response.body().getResults()) {
+                        final Double lat = result.getGeometry().getLocation().getLat();
+                        final Double lng = result.getGeometry().getLocation().getLng();
+                        final String placeName = result.getName();
+                        final MarkerOptions markerOptions = new MarkerOptions();
+                        final LatLng latLng = new LatLng(lat, lng);
+
+                        markerOptions.position(latLng);
+                        markerOptions.title(placeName);
+                        final Marker m = googleMap.addMarker(markerOptions);
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(
+                                BitmapDescriptorFactory.HUE_RED));
+
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(final Call<MainResponse> call, final Throwable t) {
+                Log.d("onFailure", t.toString());
+            }
+        });
+    }
+
+    @Override
+    public void onLocationChanged(final Location location) {
+        mLastLocation = location;
+        if (mLocationMarker != null) {
+            mLocationMarker.remove();
+        }
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        final MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+
+        markerOptions.icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+
+        mLocationMarker = googleMap.addMarker(markerOptions);
+
+        goToLocationWithZoom(latLng);
+    }
+
+    @Override
+    public void onMapReady(final GoogleMap map) {
+        googleMap = map;
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                googleMap.setMyLocationEnabled(true);
+            }
+        } else {
+            buildGoogleApiClient();
+            googleMap.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    public void onConnected(final Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            final Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    googleApiClient);
+            if (mCurrentLocation != null) {
+                final LatLng latLng = new LatLng(mCurrentLocation.getLatitude(),
+                        mCurrentLocation.getLongitude());
+                goToLocationWithZoom(latLng);
+            }
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(final int i) {
+        if (i == CAUSE_SERVICE_DISCONNECTED) {
+            Toast.makeText(this, "Disconnected. Please reconnect.", Toast.LENGTH_SHORT).show();
+        } else if (i == CAUSE_NETWORK_LOST) {
+            Toast.makeText(this, "Network lost. Please reconnect.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode,
+                                           @NonNull final String permissions[],
+                                           @NonNull final int[] grantResults) {
+        switch (requestCode) {
+            case PERMS_REQUEST_CODE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        if (googleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        googleMap.setMyLocationEnabled(true);
+                    }
+                } else {
+                    Toast.makeText(this, LOCATION_PERMISSION_INFO, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMS_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMS_REQUEST_CODE);
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private void initMap() {
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
@@ -87,33 +261,28 @@ public class AtmMapActivity extends AppCompatActivity implements
                 if (atm.equals(context.getString(R.string.AllATM))) {
                     searchNearby("atm");
                 } else
-                    searchNearby("atm " + parent.getItemAtPosition(position).toString());
+                    searchNearby(parent.getItemAtPosition(position).toString());
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onNothingSelected(final AdapterView<?> parent) {
 
             }
         });
     }
 
-    private boolean checkLocationPermission(final String... permissions) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (final String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context,
-                        permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
+    private void startLocationUpdates() {
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(1000)
+                .setFastestInterval(1000);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,
+                    mLocationRequest, this);
         }
-        return true;
-    }
-
-    @Override
-    public void onMapReady(final GoogleMap mGoogleMap) {
-        googleMap = mGoogleMap;
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-        enableMyLocation();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -124,65 +293,8 @@ public class AtmMapActivity extends AppCompatActivity implements
         googleApiClient.connect();
     }
 
-    @Override
-    public void onConnected(final Bundle bundle) {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(2000);
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,
-                    mLocationRequest, this);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mLocationMarker != null) {
-            mLocationMarker.remove();
-        }
-        if (googleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(final int requestCode,
-                                           @NonNull final String permissions[],
-                                           @NonNull final int[] grantResults) {
-        switch (requestCode) {
-            case PERMS_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(this,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        if (googleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        googleMap.setMyLocationEnabled(true);
-                    }
-                } else {
-                    Toast.makeText(this, LOCATION_PERMISSION_INFO, Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    private void enableMyLocation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
-                googleMap.setMyLocationEnabled(true);
-            }
-        } else {
-            buildGoogleApiClient();
-            googleMap.setMyLocationEnabled(true);
-        }
+    private void goToLocationWithZoom(final LatLng latLng) {
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
     }
 }

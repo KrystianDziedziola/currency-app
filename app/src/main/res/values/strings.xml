@@ -8,6 +8,7 @@
     <string name="AllATM">Wszystkie Bankomaty</string>
 
     <string-array name="ATMs">
+        <item>Wybierz</item>
         <item>@string/AllATM</item>
         <item>PKO</item>
         <item>mBank</item>
