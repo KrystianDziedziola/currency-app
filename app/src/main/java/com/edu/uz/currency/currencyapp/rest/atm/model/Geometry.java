@@ -1,4 +1,4 @@
-package com.edu.uz.currency.currencyapp.atm.rest.model;
+package com.edu.uz.currency.currencyapp.rest.atm.model;
 
 
 import com.edu.uz.currency.currencyapp.rest.model.Location;

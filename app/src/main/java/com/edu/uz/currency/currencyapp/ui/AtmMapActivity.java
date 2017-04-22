@@ -1,4 +1,4 @@
-package com.edu.uz.currency.currencyapp.atm;
+package com.edu.uz.currency.currencyapp.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,9 +20,9 @@ import android.widget.Toast;
 
 import com.edu.uz.currency.currencyapp.R;
 
-import com.edu.uz.currency.currencyapp.atm.rest.model.MainResponse;
-import com.edu.uz.currency.currencyapp.atm.rest.GoogleClient;
-import com.edu.uz.currency.currencyapp.atm.rest.model.Result;
+import com.edu.uz.currency.currencyapp.rest.atm.model.MainResponse;
+import com.edu.uz.currency.currencyapp.rest.atm.GoogleClient;
+import com.edu.uz.currency.currencyapp.rest.atm.model.Result;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;

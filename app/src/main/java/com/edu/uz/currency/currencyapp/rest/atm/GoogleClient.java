@@ -1,6 +1,6 @@
-package com.edu.uz.currency.currencyapp.atm.rest;
+package com.edu.uz.currency.currencyapp.rest.atm;
 
-import com.edu.uz.currency.currencyapp.atm.rest.model.MainResponse;
+import com.edu.uz.currency.currencyapp.rest.atm.model.MainResponse;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;

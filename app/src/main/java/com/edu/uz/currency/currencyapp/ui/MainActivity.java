@@ -1,11 +1,12 @@
-package com.edu.uz.currency.currencyapp;
+package com.edu.uz.currency.currencyapp.ui;
 
 import android.databinding.DataBindingUtil;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.edu.uz.currency.currencyapp.atm.AtmMapActivity;
+import com.edu.uz.currency.currencyapp.R;
+import com.edu.uz.currency.currencyapp.ui.AtmMapActivity;
 import com.edu.uz.currency.currencyapp.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonExchangeRates.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Przejście do aktywności z Kursami walut.
+                ExchangeRatesActivity.start(MainActivity.this);
             }
         });
 
