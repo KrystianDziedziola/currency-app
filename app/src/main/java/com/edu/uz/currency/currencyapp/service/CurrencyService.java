@@ -1,8 +1,9 @@
-package com.edu.uz.currency.currencyapp.rest;
+package com.edu.uz.currency.currencyapp.service;
 
 import com.edu.uz.currency.currencyapp.helper.RequestException;
 import com.edu.uz.currency.currencyapp.helper.CurrencyMapper;
 import com.edu.uz.currency.currencyapp.model.Currency;
+import com.edu.uz.currency.currencyapp.rest.NbpClient;
 import com.edu.uz.currency.currencyapp.rest.model.SingleCurrency;
 import com.edu.uz.currency.currencyapp.rest.model.TableCurrency;
 
@@ -20,40 +21,40 @@ public class CurrencyService {
         this.nbpClient = nbpClient;
     }
 
-    public List<Currency> getAllCurrencies() throws IOException {
-        final Response<List<TableCurrency>> response = nbpClient.getAllCurrencyFromTable(
-                TABLE_A).execute();
+    public List<Currency> getAllCurrencies() throws RequestException {
+        try {
+            final Response<List<TableCurrency>> response = nbpClient.getAllCurrencyFromTable(
+                    TABLE_A).execute();
 
-        if (response.isSuccessful()) {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapAllCurrencies(response);
-        } else {
+        } catch (final IOException e) {
             throw new RequestException();
         }
     }
 
-    public Currency getSingleCurrency(final String code) throws IOException {
-        final Response<SingleCurrency> response = nbpClient.getSingleCurrency(TABLE_A,
-                code).execute();
+    public Currency getSingleCurrency(final String code) throws RequestException {
+        try {
+            final Response<SingleCurrency> response = nbpClient.getSingleCurrency(
+                    TABLE_A, code).execute();
 
-        if (response.isSuccessful()) {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapSingleCurrency(response);
-        } else {
+        } catch (final IOException e) {
             throw new RequestException();
         }
     }
 
     public List<Currency> getSingleCurrencyHistory(final String code,
                                                    final String startDate,
-                                                   final String endDate) throws IOException {
-        final Response<SingleCurrency> response = nbpClient.getSingleCurrencyHistory(TABLE_A, code,
-                startDate, endDate).execute();
+                                                   final String endDate) throws RequestException {
+        try {
+            final Response<SingleCurrency> response = nbpClient.getSingleCurrencyHistory(
+                    TABLE_A, code, startDate, endDate).execute();
 
-        if (response.isSuccessful()) {
             final CurrencyMapper currencyMapper = new CurrencyMapper();
             return currencyMapper.mapSingleCurrencyHistory(response);
-        } else {
+        } catch (final IOException e) {
             throw new RequestException();
         }
     }

@@ -84,6 +84,6 @@ public class CurrencyRepositoryTest {
         repository.add(currency);
 
         // then
-        // expected exception of class CurrencyInsertException
+        // expect exception of class CurrencyInsertException
     }
 }

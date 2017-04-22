@@ -38,7 +38,7 @@ public class CurrencyTest {
 
         // then
             assertThat(e).isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Wrong code 'USDEE'. It should contain 3 characters");
+                    .hasMessage("Wrong code 'USDEE'. It should contain 3 letters");
         }
     }
 
@@ -54,7 +54,7 @@ public class CurrencyTest {
 
         // then
             assertThat(e).isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Wrong rate: '-0.5'. It should be bigger than 0");
+                    .hasMessage("Wrong value '-0.5' of field 'rate'. It should be bigger than '0'");
         }
     }
 
@@ -68,7 +68,7 @@ public class CurrencyTest {
             new Currency("Dolar", "USD", 4.04, nullDate);
         } catch (IllegalArgumentException e) {
 
-            // then
+        // then
             assertThat(e).isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Parameter 'date' shouldn't be null");
         }
