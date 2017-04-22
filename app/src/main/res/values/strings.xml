@@ -6,9 +6,10 @@
     <string name="exchange_calculator">Kalkulator walut</string>
     <string name="find">Szukaj</string>
     <string name="AllATM">Wszystkie Bankomaty</string>
+    <string name="wybierz">Wybierz</string>
 
     <string-array name="ATMs">
-        <item>Wybierz</item>
+        <item>@string/wybierz</item>
         <item>@string/AllATM</item>
         <item>PKO</item>
         <item>mBank</item>

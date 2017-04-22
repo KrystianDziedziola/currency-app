@@ -1,6 +1,5 @@
 package com.edu.uz.currency.currencyapp;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,8 +34,7 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonAtms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                final Intent atmMaps = new Intent(MainActivity.this, AtmMapActivity.class);
-                startActivity(atmMaps);
+                AtmMapActivity.start(MainActivity.this);
             }
         });
     }

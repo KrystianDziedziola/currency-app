@@ -1,7 +1,9 @@
 package com.edu.uz.currency.currencyapp.atm;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -27,7 +29,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -45,7 +46,7 @@ public class AtmMapActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         GoogleApiClient.ConnectionCallbacks, LocationListener {
 
-    private static final String LOCATION_PERMISSION_INFO = "My location permission denied. " +
+    private static final String LOCATION_PERMISSION_INFO = "Location permission denied. " +
             "Please turn ON permission and come back.";
     private static final int PERMS_REQUEST_CODE = 11;
     private static final int PROXIMITY_RADIUS = 5000;
@@ -74,8 +75,41 @@ public class AtmMapActivity extends AppCompatActivity implements
         if (!isGooglePlayServicesAvailable()) {
             finish();
         }
+        buildGoogleApiClient();
+        createLocationRequest();
         initMap();
         initAtmSpinner();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setLocation();
+        if (googleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
     }
 
     private boolean isGooglePlayServicesAvailable() {
@@ -102,7 +136,6 @@ public class AtmMapActivity extends AppCompatActivity implements
                                    final Response<MainResponse> response) {
                 try {
                     googleMap.clear();
-
                     Log.d("URL", String.format("%s", response.raw().request().url()));
 
                     for (Result result : response.body().getResults()) {
@@ -117,9 +150,6 @@ public class AtmMapActivity extends AppCompatActivity implements
                         final Marker m = googleMap.addMarker(markerOptions);
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(
                                 BitmapDescriptorFactory.HUE_RED));
-
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -136,22 +166,6 @@ public class AtmMapActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(final Location location) {
         mLastLocation = location;
-        if (mLocationMarker != null) {
-            mLocationMarker.remove();
-        }
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        final MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-
-        markerOptions.icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-
-        mLocationMarker = googleMap.addMarker(markerOptions);
-
-        goToLocationWithZoom(latLng);
     }
 
     @Override
@@ -164,30 +178,32 @@ public class AtmMapActivity extends AppCompatActivity implements
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
                 googleMap.setMyLocationEnabled(true);
             }
         } else {
-            buildGoogleApiClient();
             googleMap.setMyLocationEnabled(true);
+        }
+    }
+
+    private void setLocation() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mLastLocation = LocationServices.FusedLocationApi
+                    .getLastLocation(googleApiClient);
+        }
+
+        if (mLastLocation != null) {
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
         }
     }
 
     @Override
     public void onConnected(final Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            final Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    googleApiClient);
-            if (mCurrentLocation != null) {
-                final LatLng latLng = new LatLng(mCurrentLocation.getLatitude(),
-                        mCurrentLocation.getLongitude());
-                goToLocationWithZoom(latLng);
-            }
-            startLocationUpdates();
-        }
+        setLocation();
+        startLocationUpdates();
     }
 
     @Override
@@ -258,6 +274,10 @@ public class AtmMapActivity extends AppCompatActivity implements
                                        final int position,
                                        final long id) {
                 final String atm = parent.getItemAtPosition(position).toString();
+                if (atm.equals(context.getString(R.string.wybierz))){
+                    googleMap.clear();
+                    return;
+                }
                 if (atm.equals(context.getString(R.string.AllATM))) {
                     searchNearby("atm");
                 } else
@@ -272,29 +292,39 @@ public class AtmMapActivity extends AppCompatActivity implements
     }
 
     private void startLocationUpdates() {
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(1000)
-                .setFastestInterval(1000);
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,
-                    mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    googleApiClient, mLocationRequest, this);
         }
     }
 
-    protected synchronized void buildGoogleApiClient() {
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(10);
+    }
+
+    private synchronized void buildGoogleApiClient() {
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
                 .build();
-        googleApiClient.connect();
     }
 
-    private void goToLocationWithZoom(final LatLng latLng) {
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+    private void stopLocationUpdates() {
+        if (googleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    googleApiClient, this);
+        }
+    }
+
+    public static void start(final Activity activity) {
+        Intent intent = new Intent(activity, AtmMapActivity.class);
+        activity.startActivity(intent);
     }
 }
