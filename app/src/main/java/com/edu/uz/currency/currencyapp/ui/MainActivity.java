@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonCalculator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Przejście do aktywności z kalkulatorem.
+                CurrencyCalculatorActivity.start(MainActivity.this);
             }
         });
 
