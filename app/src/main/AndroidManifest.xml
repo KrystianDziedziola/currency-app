@@ -21,7 +21,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ExchangeRatesActivity" />
+<<<<<<< HEAD
         <activity android:name=".ui.CurrencyAboutActivity"></activity>
+=======
+        <activity android:name=".ui.CurrencyCalculatorActivity"></activity>
+>>>>>>> CUR-8 Dodanie aktywności kalkulatora walut
     </application>
 
 </manifest>

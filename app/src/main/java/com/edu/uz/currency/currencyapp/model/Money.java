@@ -40,4 +40,9 @@ public class Money {
     public int hashCode() {
         return Objects.hash(currencyCode, amount);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.2f %s", amount, currencyCode);
+    }
 }

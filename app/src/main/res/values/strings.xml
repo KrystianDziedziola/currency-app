@@ -5,5 +5,16 @@
     <string name="exchange_calculator">Kalkulator walut</string>
     <string name="internet">Internet</string>
     <string name="no_internet_message">Brak połączenia z internetem. Potrzebujesz mieć połączenie z internetem żeby sprawdzić aktualne kursy walut.</string>
+<<<<<<< HEAD
     <string name="downloading_data">Pobieranie danych...</string>
+=======
+    <string name="calculator_result_title">Otrzymasz</string>
+    <string name="calculator_result_text">Wynik..</string>
+    <string name="calculator_button_text">Wymień</string>
+    <string name="calculator_checkbox_text">Wymień na PLN</string>
+    <string name="calculator_exchange_to_title">Wymień na</string>
+    <string name="calculator_exchange_from_text">Wprowadź kwotę..</string>
+    <string name="calculator_exchange_from_title">Chcę wymienić</string>
+    <string name="calculator_empty_value_message">Wprowadź kwotę, którą chcesz wymienić</string>
+>>>>>>> CUR-8 Dodanie aktywności kalkulatora walut
 </resources>
