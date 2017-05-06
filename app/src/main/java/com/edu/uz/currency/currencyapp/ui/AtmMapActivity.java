@@ -3,15 +3,20 @@ package com.edu.uz.currency.currencyapp.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,9 +24,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.edu.uz.currency.currencyapp.R;
-
-import com.edu.uz.currency.currencyapp.rest.atm.model.MainResponse;
 import com.edu.uz.currency.currencyapp.rest.atm.GoogleClient;
+import com.edu.uz.currency.currencyapp.rest.atm.model.MainResponse;
 import com.edu.uz.currency.currencyapp.rest.atm.model.Result;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -46,6 +50,7 @@ public class AtmMapActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         GoogleApiClient.ConnectionCallbacks, LocationListener {
 
+    private static final String TAG = "AtmMapActivity";
     private static final String LOCATION_PERMISSION_INFO = "Location permission denied. " +
             "Please turn ON permission and come back.";
     private static final int PERMS_REQUEST_CODE = 11;
@@ -92,10 +97,16 @@ public class AtmMapActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        checkGPSEnabled();
         setLocation();
         if (googleApiClient.isConnected()) {
             startLocationUpdates();
         }
+    }
+
+    private void openLocationSettings() {
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        AtmMapActivity.this.startActivity(intent);
     }
 
     @Override
@@ -152,7 +163,7 @@ public class AtmMapActivity extends AppCompatActivity implements
                                 BitmapDescriptorFactory.HUE_RED));
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "onResponse: ", e);
                 }
             }
 
@@ -243,16 +254,10 @@ public class AtmMapActivity extends AppCompatActivity implements
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMS_REQUEST_CODE);
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMS_REQUEST_CODE);
-            }
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMS_REQUEST_CODE);
+
             return false;
         } else {
             return true;
@@ -274,7 +279,7 @@ public class AtmMapActivity extends AppCompatActivity implements
                                        final int position,
                                        final long id) {
                 final String atm = parent.getItemAtPosition(position).toString();
-                if (atm.equals(context.getString(R.string.wybierz))){
+                if (atm.equals(context.getString(R.string.wybierz))) {
                     googleMap.clear();
                     return;
                 }
@@ -298,6 +303,37 @@ public class AtmMapActivity extends AppCompatActivity implements
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     googleApiClient, mLocationRequest, this);
+        }
+    }
+
+    private void checkGPSEnabled() {
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (!gps_enabled) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage("Lokalizacja jest wyłączona");
+            dialog.setPositiveButton("Włącz",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            openLocationSettings();
+                        }
+                    });
+            dialog.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.atm_main_layout), "Bez lokalizacji funkcja może nie działać poprawnie", Snackbar.LENGTH_LONG);
+                            snackbar.setAction("Włącz", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    openLocationSettings();
+                                }
+                            });
+                            snackbar.show();
+                        }
+                    });
+            dialog.show();
         }
     }
 

@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:paddingBottom="16dp"
-              android:paddingLeft="16dp"
-              android:paddingRight="16dp"
-              android:paddingTop="16dp"
-              tools:context="com.edu.uz.currency.currencyapp.ui.AtmMapActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/atm_main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    tools:context="com.edu.uz.currency.currencyapp.ui.AtmMapActivity">
 
     <Spinner
         android:id="@+id/atmSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:entries="@array/ATMs"
-        android:paddingBottom="16dp"/>
+        android:paddingBottom="16dp" />
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>
