@@ -73,7 +73,7 @@ public class ExchangeRatesActivity extends AppCompatActivity {
             try {
                 currencies = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient()).getAllCurrencies();
             } catch (IOException e) {
-                Log.e("MainActivity", "onClick: ", e);
+                Log.e("ExchangeRatesActivity", "onClick: ", e);
             }
             return currencies;
         }
