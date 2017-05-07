@@ -45,6 +45,14 @@ public class CurrencyService {
         }
     }
 
+    /**
+     *
+     * @param code
+     * @param startDate format "YYYY-MM-DD"
+     * @param endDate format "YYYY-MM-DD"
+     * @return
+     * @throws RequestException
+     */
     public List<Currency> getSingleCurrencyHistory(final String code,
                                                    final String startDate,
                                                    final String endDate) throws RequestException {
