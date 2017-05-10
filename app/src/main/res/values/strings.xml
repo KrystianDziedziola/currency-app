@@ -5,4 +5,5 @@
     <string name="exchange_calculator">Kalkulator walut</string>
     <string name="internet">Internet</string>
     <string name="no_internet_message">Brak połączenia z internetem. Potrzebujesz mieć połączenie z internetem żeby sprawdzić aktualne kursy walut.</string>
+    <string name="downloading_data">Pobieranie danych...</string>
 </resources>

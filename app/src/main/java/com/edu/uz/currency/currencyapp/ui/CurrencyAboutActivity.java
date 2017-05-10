@@ -1,6 +1,7 @@
 package com.edu.uz.currency.currencyapp.ui;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
@@ -43,6 +44,8 @@ public class CurrencyAboutActivity extends AppCompatActivity {
         currencyCode = getIntent().getStringExtra(EXTRA_CURRENCY_CODE);
 
         new CurrencyAboutActivity.GetCurrencyTask().execute();
+        //TODO: Opcjonalnie pobierac z bazy
+
         setTitle(currencyCode);
     }
 
@@ -53,6 +56,18 @@ public class CurrencyAboutActivity extends AppCompatActivity {
     }
 
     class GetCurrencyTask extends AsyncTask<Void, Void, List<Currency>> {
+
+        ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(CurrencyAboutActivity.this);
+            dialog.setTitle(getString(R.string.downloading_data));
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.show();
+        }
+
         @Override
         protected List<Currency> doInBackground(Void... params) {
             List<Currency> currencies = null;
@@ -61,9 +76,6 @@ public class CurrencyAboutActivity extends AppCompatActivity {
                 String endDate = date.toString(Constants.DATE_FORMAT);
                 String startDate = date.plusYears(-1).toString(Constants.DATE_FORMAT);
                 currencies = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient()).getSingleCurrencyHistory(currencyCode, startDate, endDate);
-
-                //TODO: Opcjonalnie pobierac z bazy
-
             } catch (IOException e) {
                 Log.e("CurrencyAboutActivity", "onClick: ", e);
             }
@@ -73,6 +85,7 @@ public class CurrencyAboutActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Currency> currencies) {
             super.onPostExecute(currencies);
+            dialog.dismiss();
             currencyHistory = currencies;
             setChart(currencies);
         }
