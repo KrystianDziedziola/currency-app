@@ -7,9 +7,6 @@ import org.joda.time.LocalDate;
 
 import java.util.List;
 
-/**
- * Created by E6420 on 2017-05-10.
- */
 
 public class ChartXAxisValueFormatter implements IAxisValueFormatter {
 
