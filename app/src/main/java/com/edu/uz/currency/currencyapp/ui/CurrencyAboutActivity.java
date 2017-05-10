@@ -10,11 +10,12 @@ import android.util.Log;
 
 import com.edu.uz.currency.currencyapp.R;
 import com.edu.uz.currency.currencyapp.databinding.ActivityCurrencyAboutBinding;
-import com.edu.uz.currency.currencyapp.ui.chartElements.ChartXAxisValueFormatter;
 import com.edu.uz.currency.currencyapp.helper.Constants;
 import com.edu.uz.currency.currencyapp.model.Currency;
 import com.edu.uz.currency.currencyapp.rest.NbpClient;
 import com.edu.uz.currency.currencyapp.service.CurrencyService;
+import com.edu.uz.currency.currencyapp.ui.chartElements.ChartXAxisValueFormatter;
+import com.edu.uz.currency.currencyapp.ui.chartElements.MyMarkerView;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -60,6 +61,9 @@ public class CurrencyAboutActivity extends AppCompatActivity {
                 String endDate = date.toString(Constants.DATE_FORMAT);
                 String startDate = date.plusYears(-1).toString(Constants.DATE_FORMAT);
                 currencies = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient()).getSingleCurrencyHistory(currencyCode, startDate, endDate);
+
+                //TODO: Opcjonalnie pobierac z bazy
+
             } catch (IOException e) {
                 Log.e("CurrencyAboutActivity", "onClick: ", e);
             }
@@ -70,6 +74,10 @@ public class CurrencyAboutActivity extends AppCompatActivity {
         protected void onPostExecute(List<Currency> currencies) {
             super.onPostExecute(currencies);
             currencyHistory = currencies;
+            setChart(currencies);
+        }
+
+        private void setChart(List<Currency> currencies) {
             List<LocalDate> dates = new ArrayList<>();
             for (int i = 0; i < currencies.size(); i++) {
                 entries.add(new Entry(i, (float) currencies.get(i).getRate()));
@@ -80,6 +88,7 @@ public class CurrencyAboutActivity extends AppCompatActivity {
             LineData lineData = new LineData(dataSet);
             binding.chart.setData(lineData);
             binding.chart.getXAxis().setValueFormatter(new ChartXAxisValueFormatter(dates));
+            binding.chart.setMarker(new MyMarkerView(CurrencyAboutActivity.this, R.layout.marker_view, dates));
             binding.chart.invalidate();
         }
     }
