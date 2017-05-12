@@ -7,6 +7,7 @@
     tools:context="com.edu.uz.currency.currencyapp.ui.ExchangeRatesActivity">
 
     <android.support.v7.widget.RecyclerView
+        android:background="@color/primary_light"
         android:id="@+id/recycler_view_currencies"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

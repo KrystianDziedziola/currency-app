@@ -1,6 +1,7 @@
 package com.edu.uz.currency.currencyapp.ui;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,19 +68,32 @@ public class ExchangeRatesActivity extends AppCompatActivity {
     }
 
     class GetCurrenciesTask extends AsyncTask<Void, Void, List<Currency>> {
+
+        ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(ExchangeRatesActivity.this);
+            dialog.setTitle(getString(R.string.downloading_data));
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.show();
+        }
+
         @Override
         protected List<Currency> doInBackground(Void... params) {
             List<Currency> currencies = null;
             try {
                 currencies = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient()).getAllCurrencies();
             } catch (IOException e) {
-                Log.e("MainActivity", "onClick: ", e);
+                Log.e("ExchangeRatesActivity", "onClick: ", e);
             }
             return currencies;
         }
 
         @Override
         protected void onPostExecute(List<Currency> currencies) {
+            dialog.dismiss();
             super.onPostExecute(currencies);
             binding.recyclerViewCurrencies.setAdapter(new CurrenciesAdapter(currencies, ExchangeRatesActivity.this));
             binding.recyclerViewCurrencies.invalidate();

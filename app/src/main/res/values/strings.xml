@@ -9,6 +9,15 @@
     <string name="find">Szukaj</string>
     <string name="AllATM">Wszystkie Bankomaty</string>
     <string name="wybierz">Wybierz</string>
+    <string name="downloading_data">Pobieranie danych...</string>
+    <string name="calculator_result_title">Otrzymasz</string>
+    <string name="calculator_result_text">Wynik..</string>
+    <string name="calculator_button_text">Wymień</string>
+    <string name="calculator_checkbox_text">Wymień na PLN</string>
+    <string name="calculator_exchange_to_title">Wymień na</string>
+    <string name="calculator_exchange_from_text">Wprowadź kwotę..</string>
+    <string name="calculator_exchange_from_title">Chcę wymienić</string>
+    <string name="calculator_empty_value_message">Wprowadź kwotę, którą chcesz wymienić</string>
 
     <string-array name="ATMs">
         <item>@string/wybierz</item>
