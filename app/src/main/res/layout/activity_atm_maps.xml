@@ -11,12 +11,27 @@
     android:paddingTop="16dp"
     tools:context="com.edu.uz.currency.currencyapp.ui.AtmMapActivity">
 
-    <Spinner
-        android:id="@+id/atmSpinner"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:entries="@array/ATMs"
-        android:paddingBottom="16dp" />
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/atmSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/ATMs"
+            android:paddingBottom="16dp"/>
+
+        <Spinner
+            android:id="@+id/radiusSpinner"
+            android:layout_width="121dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/radius"
+            android:paddingBottom="16dp"/>
+
+    </LinearLayout>
 
     <fragment
         android:id="@+id/map"

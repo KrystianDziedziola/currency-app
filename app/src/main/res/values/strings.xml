@@ -3,12 +3,13 @@
     <string name="app_name">CurrencyApp</string>
     <string name="exchange_rates">Kursy walut</string>
     <string name="ATM">Bankomaty</string>
+    <string name="atm">atm</string>
     <string name="exchange_calculator">Kalkulator walut</string>
     <string name="internet">Internet</string>
     <string name="no_internet_message">Brak połączenia z internetem. Potrzebujesz mieć połączenie z internetem żeby sprawdzić aktualne kursy walut.</string>
     <string name="find">Szukaj</string>
     <string name="AllATM">Wszystkie Bankomaty</string>
-    <string name="wybierz">Wybierz</string>
+    <string name="wybierz">Wybierz bankomat</string>
     <string name="downloading_data">Pobieranie danych...</string>
     <string name="calculator_result_title">Otrzymasz</string>
     <string name="calculator_result_text">Wynik..</string>
@@ -25,10 +26,19 @@
         <item>PKO</item>
         <item>mBank</item>
         <item>Millennium</item>
-        <item>IdeaBank</item>
         <item>Bgż</item>
         <item>Wbk</item>
         <item>ING</item>
+        <item>Planet Cash</item>
+        <item>Euronet</item>
+    </string-array>
+
+    <string-array name="radius">
+        <item>1km</item>
+        <item>5km</item>
+        <item>10km</item>
+        <item>20km</item>
+        <item>50km</item>
     </string-array>
 
 </resources>

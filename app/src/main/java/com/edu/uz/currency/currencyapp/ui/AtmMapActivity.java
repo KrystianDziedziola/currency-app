@@ -45,6 +45,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.edu.uz.currency.currencyapp.R.string.atm;
+
 public class AtmMapActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -54,12 +56,12 @@ public class AtmMapActivity extends AppCompatActivity implements
     private static final String LOCATION_PERMISSION_INFO = "Location permission denied. " +
             "Please turn ON permission and come back.";
     private static final int PERMS_REQUEST_CODE = 11;
-    private static final int PROXIMITY_RADIUS = 5000;
 
     private double latitude;
     private double longitude;
     private GoogleMap googleMap;
     private Spinner atmSpinner;
+    private Spinner radiusSpinner;
     private GoogleApiClient googleApiClient;
     private SupportMapFragment mapFragment;
     private Context context;
@@ -67,6 +69,9 @@ public class AtmMapActivity extends AppCompatActivity implements
     private Marker mLocationMarker;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
+
+    private String actualAtm;
+    private String actualRadius;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -84,6 +89,7 @@ public class AtmMapActivity extends AppCompatActivity implements
         createLocationRequest();
         initMap();
         initAtmSpinner();
+        initRadiusSpinner();
     }
 
     @Override
@@ -136,17 +142,17 @@ public class AtmMapActivity extends AppCompatActivity implements
         return true;
     }
 
-    private void searchNearby(final String atmName) {
+    private void searchNearby(final String atmName, final int radius) {
         final GoogleClient googleClient = GoogleClient.FactoryGoogleClient.getGoogleClient();
-        final Call<MainResponse> call = googleClient.getNearbyPlaces(atmName,
-                latitude + "," + longitude, PROXIMITY_RADIUS);
+        final Call<MainResponse> call = googleClient.getNearbyPlaces(
+                context.getString(atm), atmName, latitude + "," + longitude,
+                radius);
 
         call.enqueue(new Callback<MainResponse>() {
             @Override
             public void onResponse(final Call<MainResponse> call,
                                    final Response<MainResponse> response) {
                 try {
-                    googleMap.clear();
                     Log.d("URL", String.format("%s", response.raw().request().url()));
 
                     for (Result result : response.body().getResults()) {
@@ -158,7 +164,7 @@ public class AtmMapActivity extends AppCompatActivity implements
 
                         markerOptions.position(latLng);
                         markerOptions.title(placeName);
-                        final Marker m = googleMap.addMarker(markerOptions);
+                        mLocationMarker = googleMap.addMarker(markerOptions);
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(
                                 BitmapDescriptorFactory.HUE_RED));
                     }
@@ -278,15 +284,43 @@ public class AtmMapActivity extends AppCompatActivity implements
                                        final View view,
                                        final int position,
                                        final long id) {
-                final String atm = parent.getItemAtPosition(position).toString();
-                if (atm.equals(context.getString(R.string.wybierz))) {
+                actualAtm = parent.getItemAtPosition(position).toString();
+                if (actualAtm.equals(context.getString(R.string.wybierz))) {
                     googleMap.clear();
                     return;
                 }
-                if (atm.equals(context.getString(R.string.AllATM))) {
-                    searchNearby("atm");
-                } else
-                    searchNearby(parent.getItemAtPosition(position).toString());
+                if (actualAtm.equals(context.getString(R.string.AllATM))) {
+                    googleMap.clear();
+                    final String[] allNames = context.getResources().getStringArray(R.array.ATMs);
+                    for (final String atmName : allNames) {
+                        searchNearby(atmName, Integer.parseInt(actualRadius));
+                    }
+                    searchNearby(context.getString(atm), Integer.parseInt(actualRadius));
+                } else {
+                    googleMap.clear();
+                    searchNearby(actualAtm, Integer.parseInt(actualRadius));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(final AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void initRadiusSpinner() {
+        radiusSpinner = (Spinner) findViewById(R.id.radiusSpinner);
+        radiusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(final AdapterView<?> parent,
+                                       final View view,
+                                       final int position,
+                                       final long id) {
+                actualRadius = parent.getItemAtPosition(position).toString();
+                actualRadius = actualRadius.substring(0, actualRadius.length() - 2);
+                actualRadius += "000";
+                searchNearby(actualAtm, Integer.parseInt(actualRadius));
             }
 
             @Override
@@ -323,7 +357,9 @@ public class AtmMapActivity extends AppCompatActivity implements
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Snackbar snackbar = Snackbar.make(findViewById(R.id.atm_main_layout), "Bez lokalizacji funkcja może nie działać poprawnie", Snackbar.LENGTH_LONG);
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.atm_main_layout),
+                                    "Bez lokalizacji funkcja może nie działać poprawnie",
+                                    Snackbar.LENGTH_LONG);
                             snackbar.setAction("Włącz", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

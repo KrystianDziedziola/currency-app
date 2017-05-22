@@ -12,8 +12,9 @@ public interface GoogleClient {
 
     String BASE_URL = "https://maps.googleapis.com/maps/";
 
-    @GET("api/place/textsearch/json?key=AIzaSyCCte9Xb-FwvaeLgidHKb-JtEU8ZY94anE")
-    Call<MainResponse> getNearbyPlaces(@Query("query") final String type,
+    @GET("api/place/nearbysearch/json?key=AIzaSyCCte9Xb-FwvaeLgidHKb-JtEU8ZY94anE")
+    Call<MainResponse> getNearbyPlaces(@Query("type") final String atm,
+                                       @Query("keyword") final String atmName,
                                        @Query("location") final String location,
                                        @Query("radius") final int radius);
 
