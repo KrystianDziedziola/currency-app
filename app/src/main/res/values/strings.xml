@@ -4,8 +4,11 @@
     <string name="exchange_rates">Kursy walut</string>
     <string name="ATM">Bankomaty</string>
     <string name="exchange_calculator">Kalkulator walut</string>
-    <string name="internet">Internet</string>
-    <string name="no_internet_message">Brak połączenia z internetem. Potrzebujesz mieć połączenie z internetem żeby sprawdzić aktualne kursy walut.</string>
+    <string name="no_internet">Brak połączenia z Internetem</string>
+    <string name="no_internet_message"> Potrzebujesz mieć połączenie z Internetem, żeby sprawdzić aktualne kursy walut.</string>
+    <string name="calculator_no_internet_message"> Potrzebujesz mieć połączenie z Internetem, żeby korzystać z kalkulatora walut.</string>
+    <string name="history_no_internet_message"> Potrzebujesz mieć połączenie z Internetem, żeby wyświetlić historyczne kursy walut.</string>
+    <string name="old_data_message">Wyświetlane dane mogą być nieakutalne. Zostały one pobrane w dniu: %1$s</string>
     <string name="find">Szukaj</string>
     <string name="AllATM">Wszystkie Bankomaty</string>
     <string name="wybierz">Wybierz</string>

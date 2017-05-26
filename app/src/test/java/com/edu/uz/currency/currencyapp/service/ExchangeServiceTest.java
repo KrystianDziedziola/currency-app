@@ -8,22 +8,23 @@ import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Java6Assertions.*;
 
 public class ExchangeServiceTest {
 
-    private final CurrencyService currencyService = mock(CurrencyService.class);
-    private final ExchangeService exchangeService = new ExchangeService(currencyService);
+    private ExchangeService exchangeService;
 
     @Before
     public void Set_Up() throws RequestException {
-        given(currencyService.getSingleCurrency("USD")).willReturn(
-                new Currency("Dolar", "USD", 4.0, LocalDate.now()));
-        given(currencyService.getSingleCurrency("EUR")).willReturn(
-                new Currency("Euro", "EUR", 2.0, LocalDate.now()));
-
+        final List<Currency> currencies = new ArrayList<>();
+        currencies.add(new Currency("Dolar", "USD", 4.0, LocalDate.now()));
+        currencies.add(new Currency("Euro", "EUR", 2.0, LocalDate.now()));
+        exchangeService = new ExchangeService(currencies);
     }
 
     @Test

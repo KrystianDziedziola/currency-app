@@ -73,6 +73,19 @@ public class CurrencyRepositoryTest {
         assertEquals(date, currency.getDate());
     }
 
+    @Test
+    public void Should_Get_All_Currencies() {
+        // given
+        final LocalDate date = LocalDate.now();
+        repository.add(new Currency("Dolar", "USD", 4.15, date));
+
+        // when
+        final List<Currency> currencies = repository.getAll();
+
+        // then
+        assertEquals(1, currencies.size());
+    }
+
     @Test(expected = CurrencyInsertException.class)
     public void Should_Throw_Exception_When_Adding_Existing_Currency() throws CurrencyInsertException {
         // given
