@@ -22,6 +22,8 @@ import com.edu.uz.currency.currencyapp.R;
 import com.edu.uz.currency.currencyapp.helper.RequestException;
 import com.edu.uz.currency.currencyapp.model.Currency;
 import com.edu.uz.currency.currencyapp.model.Money;
+import com.edu.uz.currency.currencyapp.repository.CurrencyRepository;
+import com.edu.uz.currency.currencyapp.repository.helper.DatabaseHelper;
 import com.edu.uz.currency.currencyapp.rest.NbpClient;
 import com.edu.uz.currency.currencyapp.service.CurrencyService;
 import com.edu.uz.currency.currencyapp.service.ExchangeService;
@@ -33,7 +35,10 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
 
     private final Context context = this;
     private final CurrencyService currencyService = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient());
-    private final ExchangeService exchangeService = new ExchangeService(currencyService);
+    private final CurrencyRepository currencyRepository = new CurrencyRepository(new DatabaseHelper(context));
+
+    private List<Currency> currencies;
+    private ExchangeService exchangeService;
 
     private Spinner fromCurrencySpinner;
     private Spinner toCurrencySpinner;
@@ -74,16 +79,38 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
 
     private void loadCurrencies() {
         try {
-            final List<Currency> currencies = currencyService.getAllCurrencies();
-            final List<String> currencyCodes = getCurrencyCodes(currencies);
-            final ArrayAdapter<String> currenciesAdapter = new ArrayAdapter<>(
-                    this, android.R.layout.simple_spinner_item, currencyCodes);
-            fromCurrencySpinner.setAdapter(currenciesAdapter);
-            toCurrencySpinner.setAdapter(currenciesAdapter);
+            currencies = getCurrencies();
+            exchangeService = new ExchangeService(currencies);
         } catch (final RequestException e) {
             showInternetConnectionError();
-//            TODO: obsłużyć błąd, pobrać z bazy..
+            return;
         }
+
+        final List<String> currencyCodes = getCurrencyCodes(currencies);
+        final ArrayAdapter<String> currenciesAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, currencyCodes);
+        fromCurrencySpinner.setAdapter(currenciesAdapter);
+        toCurrencySpinner.setAdapter(currenciesAdapter);
+    }
+
+    private List<Currency> getCurrencies() throws RequestException {
+        try {
+            final List<Currency> currencies = currencyService.getAllCurrencies();
+            currencyRepository.deleteAll();
+            currencyRepository.add(currencies);
+            return currencies;
+        } catch (final RequestException e) {
+            final List<Currency> currencies = currencyRepository.getAll();
+            if (currencies.isEmpty()) {
+                throw e;
+            }
+            showOldDataAlertDialog(getUpdateDate(currencies));
+            return currencies;
+        }
+    }
+
+    private String getUpdateDate(final List<Currency> currencies) {
+        return currencies.get(0).getDate().toString();
     }
 
     private List<String> getCurrencyCodes(final List<Currency> currencies) {
@@ -111,14 +138,21 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
 
     private void showInternetConnectionError() {
         new AlertDialog.Builder(context)
-                .setTitle(R.string.internet)
-                .setMessage(R.string.no_internet_message)
+                .setTitle(R.string.no_internet)
+                .setMessage(R.string.calculator_no_internet_message)
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         CurrencyCalculatorActivity.this.finish();
                     }
                 }).show();
+    }
+
+    private void showOldDataAlertDialog(final String updateDate) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.no_internet)
+                .setMessage(getString(R.string.old_data_message, updateDate))
+                .show();
     }
 
     private void addCalculateButtonBehaviour() {
@@ -134,24 +168,19 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
                 }
 
                 final Money fromMoney = createFromMoney();
-                try {
-                    if (toPlnCheckBox.isChecked()) {
-                        exchangeToPln(fromMoney);
-                    } else {
-                        exchange(fromMoney);
-                    }
-                } catch (final RequestException e) {
-                    showInternetConnectionError();
-//            TODO: obsłużyć błąd, pobrać z bazy..
+                if (toPlnCheckBox.isChecked()) {
+                    exchangeToPln(fromMoney);
+                } else {
+                    exchange(fromMoney);
                 }
             }
 
-            private void exchangeToPln(final Money fromMoney) throws RequestException {
+            private void exchangeToPln(final Money fromMoney) {
                 final Money result = exchangeService.exchangeToPolishMoney(fromMoney);
                 resultTextView.setText(result.toString());
             }
 
-            private void exchange(final Money fromMoney) throws RequestException {
+            private void exchange(final Money fromMoney) {
                 final String toCurrency = parseCurrencyCode((String) toCurrencySpinner.getSelectedItem());
                 final Money result = exchangeService.exchange(fromMoney, toCurrency);
                 resultTextView.setText(result.toString());

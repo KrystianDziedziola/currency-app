@@ -14,7 +14,6 @@ public class Currency {
     public static final String RATE_KEY = "rate";
     public static final String DATE_KEY = "date";
 
-    private static final int CODE_LENGTH = 3;
     private static final int MINIMUM_RATE = 0;
 
     private String name;

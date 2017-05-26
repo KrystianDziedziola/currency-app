@@ -58,9 +58,10 @@ public class CurrencyRepository implements Repository<Currency> {
     }
 
     @Override
-    public Currency getOne(final Specification specification, final String ... parameters) {
+    public Currency getOne(final Specification specification, final String... parameters) {
         try (final SQLiteDatabase database = sqLiteOpenHelper.getReadableDatabase()) {
             final Cursor cursor = database.rawQuery(specification.toSqlQuery(), parameters);
+            cursor.moveToFirst();
             return cursorToCurrencyMapper.map(cursor);
         }
     }
@@ -72,13 +73,15 @@ public class CurrencyRepository implements Repository<Currency> {
         try (final SQLiteDatabase database = sqLiteOpenHelper.getReadableDatabase()) {
 
             try (final Cursor cursor = database.rawQuery(CurrencyQuery.GET_ALL_CURRENCIES, null)) {
-                while (cursor.moveToNext()) {
-                    final Currency currency = cursorToCurrencyMapper.map(cursor);
-                    currencies.add(currency);
+                if (cursor.moveToFirst()) {
+                    do {
+                        final Currency currency = cursorToCurrencyMapper.map(cursor);
+                        currencies.add(currency);
+                    } while (cursor.moveToNext());
                 }
             }
+            return currencies;
         }
-        return currencies;
     }
 
     @Override

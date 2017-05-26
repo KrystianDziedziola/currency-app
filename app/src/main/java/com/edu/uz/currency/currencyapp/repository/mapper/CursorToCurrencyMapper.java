@@ -10,8 +10,6 @@ public class CursorToCurrencyMapper implements Mapper<Cursor, Currency> {
 
     @Override
     public Currency map(final Cursor cursor) {
-        cursor.moveToFirst();
-
         final String name = cursor.getString(cursor.getColumnIndex(Currency.NAME_KEY));
         final String code = cursor.getString(cursor.getColumnIndex(Currency.CODE_KEY));
         final double rate = cursor.getDouble(cursor.getColumnIndex(Currency.RATE_KEY));
