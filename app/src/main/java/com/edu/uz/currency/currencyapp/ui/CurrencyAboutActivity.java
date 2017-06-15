@@ -2,10 +2,15 @@ package com.edu.uz.currency.currencyapp.ui;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -43,10 +48,31 @@ public class CurrencyAboutActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_currency_about);
         currencyCode = getIntent().getStringExtra(EXTRA_CURRENCY_CODE);
 
-        new CurrencyAboutActivity.GetCurrencyTask().execute();
-        //TODO: Opcjonalnie pobierac z bazy
-
         setTitle(currencyCode);
+
+        if (!isOnline()) {
+            showInternetConnectionError();
+        } else {
+            new CurrencyAboutActivity.GetCurrencyTask().execute();
+        }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    private void showInternetConnectionError() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.no_internet)
+                .setMessage(R.string.history_no_internet_message)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        CurrencyAboutActivity.this.finish();
+                    }
+                }).show();
     }
 
     public static void start(Activity activity, String currencyCode) {
