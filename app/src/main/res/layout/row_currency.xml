@@ -16,6 +16,8 @@
         android:layout_marginStart="8dp"
         app:cardElevation="4dp">
     <LinearLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="40dp"
@@ -51,7 +53,7 @@
             android:layout_height="match_parent"
             tools:text="1.24223"
             android:textSize="20sp"
-            android:text="@{Double.toString(currency.rate)}"
+            android:text='@{String.format("%.5f",currency.rate)}'
             android:textColor="@android:color/black"
             android:textAlignment="textEnd"
             android:layout_weight="1"/>
