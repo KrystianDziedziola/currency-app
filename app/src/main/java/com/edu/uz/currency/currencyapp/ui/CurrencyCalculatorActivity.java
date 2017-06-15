@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -19,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.edu.uz.currency.currencyapp.R;
+import com.edu.uz.currency.currencyapp.databinding.ActivityCurrencyAboutBinding;
+import com.edu.uz.currency.currencyapp.databinding.ActivityCurrencyCalculatorBinding;
 import com.edu.uz.currency.currencyapp.helper.RequestException;
 import com.edu.uz.currency.currencyapp.model.Currency;
 import com.edu.uz.currency.currencyapp.model.Money;
@@ -28,11 +33,14 @@ import com.edu.uz.currency.currencyapp.rest.NbpClient;
 import com.edu.uz.currency.currencyapp.service.CurrencyService;
 import com.edu.uz.currency.currencyapp.service.ExchangeService;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyCalculatorActivity extends AppCompatActivity {
 
+    private ActivityCurrencyCalculatorBinding binding;
     private final Context context = this;
     private final CurrencyService currencyService = new CurrencyService(NbpClient.FactoryNbpClient.getNbpClient());
     private final CurrencyRepository currencyRepository = new CurrencyRepository(new DatabaseHelper(context));
@@ -42,41 +50,22 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
 
     private Spinner fromCurrencySpinner;
     private Spinner toCurrencySpinner;
-    private CheckBox toPlnCheckBox;
     private EditText amountEditText;
-    private Button calculateButton;
-    private TextView resultTextView;
+    private EditText resultTextView;
+
+    private static final int CURRENCY_CODE_BEGIN_INDEX = 0;
+    private static final int CURRENCY_CODE_END_INDEX = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_currency_calculator);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_currency_calculator);
         setPolicy();
         initializeComponents();
         loadCurrencies();
-        addToPlnCheckBoxBehaviour();
-        addCalculateButtonBehaviour();
+        setDefaultValues();
 
         setTitle(getString(R.string.currencies_calculator));
-    }
-
-    public static void start(Activity activity) {
-        final Intent intent = new Intent(activity, CurrencyCalculatorActivity.class);
-        activity.startActivity(intent);
-    }
-
-    private void setPolicy() {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-    }
-
-    private void initializeComponents() {
-        fromCurrencySpinner = (Spinner) findViewById(R.id.fromCurrencySpinner);
-        toCurrencySpinner = (Spinner) findViewById(R.id.toCurrencySpinner);
-        toPlnCheckBox = (CheckBox) findViewById(R.id.toPlnCheckBox);
-        amountEditText = (EditText) findViewById(R.id.exchangeAmountEditText);
-        calculateButton = (Button) findViewById(R.id.calculateButton);
-        resultTextView = (TextView) findViewById(R.id.resultText);
     }
 
     private void loadCurrencies() {
@@ -95,11 +84,73 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
         toCurrencySpinner.setAdapter(currenciesAdapter);
     }
 
+    public static void start(Activity activity) {
+        final Intent intent = new Intent(activity, CurrencyCalculatorActivity.class);
+        activity.startActivity(intent);
+    }
+
+    private void setPolicy() {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+    }
+
+    private void initializeComponents() {
+        fromCurrencySpinner = binding.fromCurrencySpinner;
+        toCurrencySpinner = binding.toCurrencySpinner;
+        amountEditText = binding.exchangeAmountEditText;
+        resultTextView = binding.exchangeToEdittext;
+
+        binding.swapCurrenciesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int temp = (int)fromCurrencySpinner.getSelectedItemId();
+                fromCurrencySpinner.setSelection((int)toCurrencySpinner.getSelectedItemId());
+                toCurrencySpinner.setSelection(temp);
+                if(!binding.exchangeAmountEditText.getText().toString().trim().equals("")) {
+                    final Money fromMoney = createFromMoney();
+                    exchange(fromMoney);
+                }
+            }
+        });
+
+
+        binding.exchangeAmountEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                final Money fromMoney = createFromMoney();
+                exchange(fromMoney);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void setDefaultValues(){
+        int posDefaultFrom = 0;
+        int posDefaultTo = 0;
+        for(int i=0; i<currencies.size(); i++){
+            Currency c = currencies.get(i);
+            if(c.getCode().equals("PLN")){
+                posDefaultTo = i;
+            }
+            if(c.getCode().equals("USD")){
+                posDefaultFrom = i;
+            }
+        }
+        fromCurrencySpinner.setSelection(posDefaultFrom);
+        toCurrencySpinner.setSelection(posDefaultTo);
+    }
+
     private List<Currency> getCurrencies() throws RequestException {
         try {
             final List<Currency> currencies = currencyService.getAllCurrencies();
             currencyRepository.deleteAll();
             currencyRepository.add(currencies);
+            currencies.add(new Currency("Polski złoty", "PLN", 1, new LocalDate()));
             return currencies;
         } catch (final RequestException e) {
             final List<Currency> currencies = currencyRepository.getAll();
@@ -125,19 +176,6 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
         return codes;
     }
 
-    private void addToPlnCheckBoxBehaviour() {
-        toPlnCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton view, final boolean isChecked) {
-                toCurrencySpinner.setEnabled(!isChecked);
-            }
-        });
-    }
-
-    private void showToast(final int stringId) {
-        Toast.makeText(getApplicationContext(), getString(stringId), Toast.LENGTH_SHORT).show();
-    }
-
     private void showInternetConnectionError() {
         new AlertDialog.Builder(context)
                 .setTitle(R.string.no_internet)
@@ -157,46 +195,19 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void addCalculateButtonBehaviour() {
-        calculateButton.setOnClickListener(new View.OnClickListener() {
-            private static final int CURRENCY_CODE_BEGIN_INDEX = 0;
-            private static final int CURRENCY_CODE_END_INDEX = 3;
+    private void exchange(final Money fromMoney) {
+        final String toCurrency = parseCurrencyCode((String) toCurrencySpinner.getSelectedItem());
+        final Money result = exchangeService.exchange(fromMoney, toCurrency);
+        resultTextView.setText(result.toString());
+    }
 
-            @Override
-            public void onClick(final View view) {
-                if (amountEditText.getText().toString().isEmpty()) {
-                    showToast(R.string.calculator_empty_value_message);
-                    return;
-                }
+    private Money createFromMoney() {
+        final double amount = Double.parseDouble(amountEditText.getText().toString());
+        final String fromCurrency = parseCurrencyCode((String) fromCurrencySpinner.getSelectedItem());
+        return new Money(amount, fromCurrency);
+    }
 
-                final Money fromMoney = createFromMoney();
-                if (toPlnCheckBox.isChecked()) {
-                    exchangeToPln(fromMoney);
-                } else {
-                    exchange(fromMoney);
-                }
-            }
-
-            private void exchangeToPln(final Money fromMoney) {
-                final Money result = exchangeService.exchangeToPolishMoney(fromMoney);
-                resultTextView.setText(result.toString());
-            }
-
-            private void exchange(final Money fromMoney) {
-                final String toCurrency = parseCurrencyCode((String) toCurrencySpinner.getSelectedItem());
-                final Money result = exchangeService.exchange(fromMoney, toCurrency);
-                resultTextView.setText(result.toString());
-            }
-
-            private Money createFromMoney() {
-                final double amount = Double.parseDouble(amountEditText.getText().toString());
-                final String fromCurrency = parseCurrencyCode((String) fromCurrencySpinner.getSelectedItem());
-                return new Money(amount, fromCurrency);
-            }
-
-            private String parseCurrencyCode(final String text) {
-                return text.substring(CURRENCY_CODE_BEGIN_INDEX, CURRENCY_CODE_END_INDEX);
-            }
-        });
+    private String parseCurrencyCode(final String text) {
+        return text.substring(CURRENCY_CODE_BEGIN_INDEX, CURRENCY_CODE_END_INDEX);
     }
 }

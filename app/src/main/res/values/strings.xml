@@ -22,6 +22,11 @@
     <string name="calculator_exchange_from_text">Wprowadź kwotę..</string>
     <string name="calculator_exchange_from_title">Chcę wymienić</string>
     <string name="calculator_empty_value_message">Wprowadź kwotę, którą chcesz wymienić</string>
+    <string name="currencies_calculator">Kalkulator Walut</string>
+    <string name="exchange_rates_title">Kursy Walut</string>
+    <string name="atms_title">Bankomaty</string>
+    <string name="from">Z:</string>
+    <string name="to">Na:</string>
 
     <string-array name="ATMs">
         <item>@string/wybierz</item>
