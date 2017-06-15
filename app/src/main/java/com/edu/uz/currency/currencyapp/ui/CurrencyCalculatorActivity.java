@@ -5,24 +5,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.edu.uz.currency.currencyapp.R;
-import com.edu.uz.currency.currencyapp.databinding.ActivityCurrencyAboutBinding;
 import com.edu.uz.currency.currencyapp.databinding.ActivityCurrencyCalculatorBinding;
 import com.edu.uz.currency.currencyapp.helper.RequestException;
 import com.edu.uz.currency.currencyapp.model.Currency;
@@ -103,10 +97,10 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
         binding.swapCurrenciesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)fromCurrencySpinner.getSelectedItemId();
-                fromCurrencySpinner.setSelection((int)toCurrencySpinner.getSelectedItemId());
+                int temp = (int) fromCurrencySpinner.getSelectedItemId();
+                fromCurrencySpinner.setSelection((int) toCurrencySpinner.getSelectedItemId());
                 toCurrencySpinner.setSelection(temp);
-                if(!binding.exchangeAmountEditText.getText().toString().trim().equals("")) {
+                if (!binding.exchangeAmountEditText.getText().toString().trim().equals("")) {
                     final Money fromMoney = createFromMoney();
                     exchange(fromMoney);
                 }
@@ -116,7 +110,8 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
 
         binding.exchangeAmountEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -125,19 +120,20 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
-    private void setDefaultValues(){
+    private void setDefaultValues() {
         int posDefaultFrom = 0;
         int posDefaultTo = 0;
-        for(int i=0; i<currencies.size(); i++){
+        for (int i = 0; i < currencies.size(); i++) {
             Currency c = currencies.get(i);
-            if(c.getCode().equals("PLN")){
+            if (c.getCode().equals("PLN")) {
                 posDefaultTo = i;
             }
-            if(c.getCode().equals("USD")){
+            if (c.getCode().equals("USD")) {
                 posDefaultFrom = i;
             }
         }
