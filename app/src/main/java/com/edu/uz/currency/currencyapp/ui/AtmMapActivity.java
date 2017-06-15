@@ -79,6 +79,8 @@ public class AtmMapActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_atm_maps);
         context = getApplicationContext();
 
+        setTitle(getString(R.string.atms_title));
+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }

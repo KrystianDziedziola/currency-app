@@ -56,6 +56,8 @@ public class CurrencyCalculatorActivity extends AppCompatActivity {
         loadCurrencies();
         addToPlnCheckBoxBehaviour();
         addCalculateButtonBehaviour();
+
+        setTitle(getString(R.string.currencies_calculator));
     }
 
     public static void start(Activity activity) {

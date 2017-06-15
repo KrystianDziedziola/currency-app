@@ -46,6 +46,8 @@ public class ExchangeRatesActivity extends AppCompatActivity {
         binding.recyclerViewCurrencies.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewCurrencies.setAdapter(new CurrenciesAdapter(new ArrayList<Currency>(), this));
 
+        setTitle(getString(R.string.exchange_rates_title));
+
         if (isOnline()) {
             new GetCurrenciesTaskFromInternet().execute();
         } else {
