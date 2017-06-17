@@ -322,6 +322,7 @@ public class AtmMapActivity extends AppCompatActivity implements
                 actualRadius = parent.getItemAtPosition(position).toString();
                 actualRadius = actualRadius.substring(0, actualRadius.length() - 2);
                 actualRadius += "000";
+                googleMap.clear();
                 searchNearby(actualAtm, Integer.parseInt(actualRadius));
             }
 
